@@ -1,2 +1,2 @@
-# 2sxc-and-OC-Apps
-This is collection of my 2sxc and OpenContent Apps
+# Events-2sxc-App
+This is a simple Events list app.
