@@ -1,0 +1,310 @@
+<link href='@App.Path/cal/fullcalendar.min.css' rel='stylesheet' />
+<link href='@App.Path/cal/fullcalendar.print.min.css' rel='stylesheet' media='print' />
+<script src='@App.Path/cal/lib/moment.min.js'></script>
+<script src='@App.Path/cal/fullcalendar.min.js'></script>
+
+
+<style>
+#eventgridholder {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    border: 2px solid #b30900;
+    border-radius: 5px;
+}
+.yeartab {
+    background-color: #b30900;
+    height: 40px;
+}
+.yeartext {
+    padding: 6px 0;
+    color: white;
+    text-indent: 10px;
+    font-size: 200%;
+}
+.monthtab {
+    background-color: #FFDAB9;
+    height: 40px;
+}
+.monthtext {
+    padding: 8px 0;
+    color: white;
+    text-indent: 20px;
+    font-size: 150%;
+}
+.eventgrid {
+    display: grid;
+    grid-template-columns: 5% 30% 30% 30% 5%;
+    grid-auto-rows: minmax(10px, auto);
+    background-color: #FFF8DC;
+}
+.eventtitle {
+    grid-column: 2 / span 3;
+    grid-row: 1;
+    font-size: 120%;
+    padding: 5px 0;
+}
+.eventsubtitle {
+    grid-column: 2 / span 2;
+    grid-row: 2;
+}
+.eventpeek {
+    grid-column: 4 / span 1;
+    grid-row: 2;
+}
+.eventstart {
+    grid-column: 2 / span 2;
+    grid-row: 3;
+}
+.eventend {
+    grid-column: 3 / span 1;
+    grid-row: 3;
+}
+.eventcity {
+    grid-column: 4 / span 1;
+    grid-row: 3;
+}
+.eventmargin {
+    grid-column: 1 / span 5;
+    grid-row: 4;
+}
+#mySearchInput {
+    background-image: url('/Portals/0/Images/templates/searchicon.png');
+    background-position: 10px 12px;
+    background-repeat: no-repeat;
+    width: 100%;
+    font-size: 16px;
+    padding: 12px 20px 12px 40px;
+    border: 1px solid #b30900;
+    border-radius: 5px;
+    margin-bottom: 12px;
+}
+.filterscontainer{
+    margin-bottom: 10px;
+}
+.filterselect {
+    font-size: 16px;
+    height: 35px;
+    border: 1px solid #b30900;
+    border-radius: 5px;
+    margin-bottom: 12px;
+    background-color: white;
+}
+.setfilterbutton{
+    font-size: 16px;
+    height: 35px;
+    border: 1px solid #b30900;
+    border-radius: 5px;
+    margin-bottom: 12px;
+    background-color: white;
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+}
+.setfilterbutton:hover {
+    background-color: #f44336;
+    color: white;
+}
+
+.pointer {
+    cursor: pointer; 
+}
+</style>
+
+<div class="sc-element">
+    @Edit.Toolbar(ListContent, settings: new { show = "always" })
+</div>
+
+@{
+    var items = AsDynamic(App.Data["events"]);
+}
+
+<div class="filterscontainer">
+    <select id="city" name="city" class="filterselect">
+        <option selected value="all">Todos</option>
+        @foreach (var e in items.GroupBy(g => g.ecity).Select(e => e.First())) {
+        <option value="@e.ecity">@e.ecity</option>
+        }
+    </select>
+    
+    <select id="country" name="country" class="filterselect">
+        <option selected value="all">Todos</option>
+        @foreach (var e in items.GroupBy(g => g.ecountry).Select(e => e.First())) {
+        <option value="@e.ecountry">@e.ecountry</option>
+        }
+    </select>
+    
+    <select id="year" name="year" class="filterselect">
+        <option selected value="all">Todos</option>
+        @foreach (var e in items.GroupBy(g => g.estartdate.Date.Year).Select(e => e.First())) {
+        <option value="@e.estartdate.Date.Year">@e.estartdate.Date.Year</option>
+        }
+    </select>
+    
+    <select id="month" name="month" class="filterselect">
+        <option selected value="all">Todos</option>
+        @foreach (var e in items.GroupBy(g => g.estartdate.Date.Month).Select(e => e.First())) {
+        <option value="@e.estartdate.Date.Month">@e.estartdate.Date.ToString("MMMM")</option>
+        }
+    </select>
+    
+    <button type="button" name="Submit" onclick="window.location.replace(location.href.replace(location.search, '') + '?' + 'city=' + city.value + '&country=' + country.value + '&year=' + year.value + '&month=' + month.value)" type="button" class="setfilterbutton">Filtrar eventos</button>
+    
+    <button type="button" name="Submit" onclick="window.location.replace(location.href.replace(location.search, ''))" type="button" class="setfilterbutton">Reset filtros</button>
+</div>
+
+@{
+    var qscity = Request.QueryString["city"];
+    if (qscity != "" && qscity != null && qscity != "all") {
+        items = items.Where(c => c.ecity == qscity);
+    }
+    
+    var qscountry = Request.QueryString["country"];
+    if (qscountry != "" && qscountry != null && qscountry != "all") {
+        items = items.Where(c => c.ecountry == qscountry);
+    }
+    
+    var qsyear = Request.QueryString["year"];
+    if (qsyear != "" && qsyear != null && qsyear != "all") {
+        items = items.Where(c => c.estartdate.Date.Year.ToString() == qsyear);
+    }
+    
+    var qsmonth = Request.QueryString["month"];
+    if (qsmonth != "" && qsmonth != null && qsmonth != "all") {
+        items = items.Where(c => c.estartdate.Date.Month.ToString() == qsmonth);
+    }
+}
+
+<input type="text" id="mySearchInput" onkeyup="mySearchNew()" placeholder="Pesquisar evento...">
+
+<br><br>
+
+<div id="eventgridholder">
+@foreach (var year in items.GroupBy(g => g.estartdate.Date.Year).Select(e => e.First())) {
+    <div class="yearlist">
+        <div class="yeartab"><div class="yeartext">@year.estartdate.Year</div></div>
+        @foreach (var month in items.GroupBy(g => g.estartdate.Date.Month).Select(e => e.First())) {
+            <div class="monthlist">
+                <div class="monthtab"><div class="monthtext">@month.estartdate.ToString("MMMM")</div></div>
+                @foreach(var e in items.Where(m => m.estartdate.Date.Month == month.estartdate.Month).OrderBy(o => o.estartdate)){
+                    var elink = Link.To(parameters: "EventDetails=" + e.EntityId);
+                    <div class="eventgrid">
+                        <div class="eventtitle">
+                            <a class="pointer" href="@elink">@e.ename</a>
+                        </div>
+                        <div class="eventsubtitle">
+                            @e.esub
+                        </div>
+                        <div class="eventpeek">
+                            <em class="fa fa-eye pointer" data-toggle="modal" data-target="@("#" + e.EntityId)"></em>
+                        </div>
+                        <div class="eventstart">
+                            De @e.estartdate.Date.ToString("d") a @e.eenddate.Date.ToString("d")
+                        </div>
+                        <div class="eventcity">
+                            @e.ecity
+                        </div>
+                        <div class="eventmargin">
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+}
+</div>
+
+@foreach(var e in items){
+    <div aria-hidden="true" aria-labelledby="@(e.EntityId + "Label")" class="modal fade" id="@(e.EntityId)" role="dialog" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button aria-hidden="true" class="close" data-dismiss="modal" type="button">&times;</button>
+                    <h4 class="modal-title" id="@(e.EntityId + "Label")">@e.ename</h4>
+                    <h5 class="modal-title" id="@(e.EntityId + "SubLabel")">@e.esub</h5>
+                </div>
+    
+                <div class="modal-body">
+                    <br>
+                    Data de início: @e.estartdate.Date.ToString("d")
+                    <br>
+                    Data de fim: @e.eenddate.Date.ToString("d")
+                    <br>
+                    Instituição: @e.einstitution
+                    <br>
+                    País: @e.ecountry
+                    <br>
+                    Cidade: @e.ecity
+                    <br>
+                    <a href="@e.elink" target="_blanc">Link para o evento</a>
+                    <br><br>
+                    @Html.Raw(e.emodal)
+                </div>
+    
+                <div class="modal-footer"><button class="btn btn-default" data-dismiss="modal" type="button">Fechar</button></div>
+            </div>
+        </div>
+    </div>
+}
+
+<script>
+function getParameterByName(name, url) {
+    if (!url) {
+      url = window.location.href;
+    }
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+
+var city = getParameterByName('city');
+if (city) {
+	document.querySelector('#city').value = city;
+}
+var country = getParameterByName('country');
+if (country) {
+	document.querySelector('#country').value = country;
+}
+var month = getParameterByName('month');
+if (month) {
+	document.querySelector('#month').value = month;
+}
+var year = getParameterByName('year');
+if (year) {
+	document.querySelector('#year').value = year;
+}
+
+function mySearchNew() {
+    var einput, efilter, eventsInMonth, i;
+    einput = document.getElementById("mySearchInput");
+    efilter = einput.value.toUpperCase();
+    event = document.getElementsByClassName("eventgrid");
+    for (i = 0; i < event.length; i++) {
+        thisEventTitle = event[i].getElementsByClassName("eventtitle");
+        thisEventSubTitle = event[i].getElementsByClassName("eventsubtitle");
+        if (thisEventTitle[0]) {
+            eventsInMonth = event[i].closest(".monthlist");
+            eventsInYear = event[i].closest(".yearlist");
+            if (thisEventTitle[0].innerHTML.toUpperCase().indexOf(efilter) > -1 || thisEventSubTitle[0].innerHTML.toUpperCase().indexOf(efilter) > -1) {
+                eventsInYear.style.display = "";
+                eventsInMonth.style.display = "";
+                event[i].style.display = "";
+            } else {
+                event[i].style.display = "none";
+                eventCountInMonth = $(eventsInMonth).find('.eventgrid:visible').length;
+                if (eventCountInMonth == 0) {
+                    eventsInMonth.style.display = "none";
+                }
+                eventCountInYear = $(eventsInYear).find('.eventgrid:visible').length;
+                if (eventCountInYear == 0) {
+                    eventsInYear.style.display = "none";
+                }
+            }
+        }
+    }
+}
+</script>
+
+<div @Edit.Attribute("quick-edit-config", new { modules = new {  enable = false }})></div>

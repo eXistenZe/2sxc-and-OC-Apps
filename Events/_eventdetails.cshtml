@@ -1,0 +1,68 @@
+<style>
+.eventholder {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    border: 2px solid #b30900;
+    border-radius: 5px;
+}
+.titletab {
+    background-color: #b30900;
+    height: auto;
+}
+.titletext {
+    padding: 12px 0;
+    color: white;
+    text-indent: 10px;
+    font-size: 200%;
+}
+.subtitletab {
+    background-color: #FFDAB9;
+    height: auto;
+}
+.subtitletext {
+    padding: 8px 0;
+    color: white;
+    text-indent: 20px;
+    font-size: 150%;
+}
+.eventtab {
+    background-color: #FFF8DC;
+}
+.eventtext {
+    margin-left: 30px;
+    margin-right: 30px;
+}
+</style>
+
+<div class="sc-element">
+    @Edit.Toolbar(Content, settings: new { show = "always" })
+</div>
+
+<div class="eventholder">
+    <div class="titletab">
+        <div class="titletext">@Content.ename</div>
+    </div>
+    <div class="subtitletab">
+        <div class="subtitletext">@Content.esub</div>
+    </div>
+    <div class="eventtab">
+        <div class="eventtext">
+            <br>
+            Data de início: @Content.estartdate.Date.ToString("d")
+            <br>
+            Data de fim: @Content.eenddate.Date.ToString("d")
+            <br>
+            Instituição: @Content.einstitution
+            <br>
+            País: @Content.ecountry
+            <br>
+            Cidade: @Content.ecity
+            <br>
+            <a href="@Content.elink" target="_blanc">Link para o evento</a>
+            <br><br>
+            @Html.Raw(Content.edesc)
+            <br>
+        </div>
+    </div>
+</div>
